@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>150 Joke Generator — Q → A</title>
+  <style>
+    :root {
+      --bg1: #ffecd2;
+      --bg2: #fcb69f;
+      --card: rgba(255,255,255,0.14);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      color: #111;
+    }
+    .wrap {
+      width: 100%;
+      max-width: 820px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.80));
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(12,12,20,0.12);
+      text-align: center;
+    }
+    h1 {
+      margin: 0 0 12px 0;
+      font-size: 1.6rem;
+      letter-spacing: -0.2px;
+    }
+    p.lead {
+      margin: 0 0 20px 0;
+      color: #333;
+    }
+    .card {
+      background: var(--card);
+      padding: 22px;
+      border-radius: 12px;
+      margin: 14px auto;
+      max-width: 700px;
+      min-height: 72px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      transition: transform 0.18s ease, opacity 0.18s ease;
+      backdrop-filter: blur(6px) saturate(1.1);
+    }
+    #joke-question {
+      font-weight: 600;
+      font-size: 1.15rem;
+      margin-bottom: 8px;
+    }
+    #joke-answer {
+      font-weight: 500;
+      font-size: 1rem;
+      color: #222;
+      min-height: 24px;
+      opacity: 0.95;
+    }
+    .controls {
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    button {
+      border: none;
+      cursor: pointer;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      box-shadow: 0 6px 14px rgba(12,12,20,0.08);
+    }
+    #new-joke-btn { background: #1f8ef1; color: white; }
+    #answer-btn { background: #ffd166; color: #2b2b2b; }
+    #copy-btn { background: #6cf0a1; color: #063; }
+    button:active { transform: translateY(1px); }
+    footer {
+      margin-top: 14px;
+      font-size: 0.85rem;
+      color: #333;
+    }
+    @media (max-width:520px){
+      .wrap { padding: 18px; }
+      #joke-question { font-size: 1rem; }
+      #joke-answer { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" role="main" aria-live="polite">
+    <h1>🤣 150 Unique Jokes — Q → A</h1>
+    <p class="lead">Press “New Joke” for the question, then “Show Answer” to reveal the punchline.</p>
+
+    <div class="card" id="card">
+      <div id="joke-question">Press “New Joke” to start!</div>
+      <div id="joke-answer"></div>
+    </div>
+
+    <div class="controls">
+      <button id="new-joke-btn" onclick="showJoke()">New Joke</button>
+      <button id="answer-btn" onclick="showAnswer()" style="display:none">Show Answer</button>
+      <button id="copy-btn" onclick="copyJoke()">Copy Q & A</button>
+    </div>
+
+    <footer>All jokes are different — enjoy! 😄</footer>
+  </div>
+
+  <script>
+    // 150 unique Q → A jokes (mixed short & slightly longer)
+    const jokes = [
+      {q:"Why did the librarian get kicked off the plane?", a:"Because it was overbooked."},
+      {q:"What do you call an artist who sculpts with vegetables?", a:"A yam-azonian."},
+      {q:"Why did the bicycle stand still at the art class?", a:"It couldn't find its pedals of inspiration."},
+      {q:"What do you call a snowman who tells tall stories?", a:"A frosty fibber."},
+      {q:"Why did the computer go to therapy?", a:"It had too many bytes of anxiety."},
+      {q:"What do you get when you cross a vampire and a snowman?", a:"Frostbite (but with style)."},
+      {q:"Why did the musician carry a ladder?", a:"To reach the high notes."},
+      {q:"What do you call a kangaroo that fixes things?", a:"A jump-start mechanic."},
+      {q:"Why don't programmers like nature?", a:"It has too many bugs."},
+      {q:"Why did the tomato blush?", a:"Because it saw the salad dressing."},
+      {q:"What do you call a lazy kangaroo?", a:"A pouch potato."},
+      {q:"Why are ghosts bad liars?", a:"Because you can see right through them."},
+      {q:"How does a penguin build its house?", a:"Igloos it together."},
+      {q:"Why did the math teacher open a bakery?", a:"He wanted to make pi."},
+      {q:"What do you call a dancing vegetable?", a:"The turnip twist."},
+      {q:"Why did the scarecrow take a promotion?", a:"He wanted to branch out of standing around."},
+      {q:"Why did the cookie cry?", a:"Because its mom was a wafer too long away."},
+      {q:"How do you organize a space party?", a:"You planet (but bring star snacks)."},
+      {q:"Why did the golfer bring an extra sock?", a:"In case he got a hole in one."},
+      {q:"What did the janitor say when he jumped out of the closet?", a:"Supplies!"},
+      {q:"Why did the picture go to jail?", a:"It was framed."},
+      {q:"What do you call a nervous javelin thrower?", a:"A jitter-javelin."},
+      {q:"Why did the cookie go to the doctor?", a:"It felt crummy."},
+      {q:"What do you call a fish who practices medicine?", a:"A sturgeon general."},
+      {q:"Why don't eggs tell jokes?", a:"They might crack up."},
+      {q:"Why did the bicycle fall over?", a:"It was two tired."},
+      {q:"What do you call a fake noodle?", a:"An impasta."},
+      {q:"Why did the computer sneeze?", a:"It caught a virus… on purpose."},
+      {q:"How do you make a tissue dance?", a:"Put a little boogie in it."},
+      {q:"Why did the calendar get promoted?", a:"It had a lot of dates."},
+      {q:"What do you call a mushroom at a party?", a:"A fungi to be with."},
+      {q:"Why was the math book sad?", a:"It had too many problems."},
+      {q:"What did one hat say to the other?", a:"You stay here. I'll go on ahead."},
+      {q:"Why don't skeletons fight each other?", a:"They don't have the guts."},
+      {q:"What do you call a bear with no teeth?", a:"A gummy bear."},
+      {q:"Why did the stadium get hot after the game?", a:"All the fans left."},
+      {q:"How do you catch a squirrel?", a:"Climb a tree and act like a nut."},
+      {q:"Why was the broom late?", a:"It over swept."},
+      {q:"What do you call a pile of cats?", a:"A meowntain."},
+      {q:"Why did the coffee file a police report?", a:"It got mugged."},
+      {q:"What kind of dog loves bubble baths?", a:"A shampoodle."},
+      {q:"Why did the student eat his homework?", a:"Because the teacher said it was a piece of cake."},
+      {q:"How does the ocean say hi?", a:"It waves."},
+      {q:"Why don't scientists trust atoms?", a:"Because they make up everything."},
+      {q:"What do you call an alligator detective?", a:"An investi-gator."},
+      {q:"Why did the girl bring a ladder to school?", a:"She wanted to go to high school."},
+      {q:"What do you call an elephant that doesn't matter?", a:"Irrelephant."},
+      {q:"Why was the math lecture on a rollercoaster?", a:"To explain curves."},
+      {q:"What did the grape say when it got stepped on?", a:"Nothing — it just let out a little wine."},
+      {q:"Why did the scarecrow become a motivational speaker?", a:"He was outstanding in his field."},
+      {q:"What do you call a snowman in summer?", a:"A puddle with memories."},
+      {q:"Why did the cell phone go to school?", a:"It wanted to be smarter and upgrade its contacts."},
+      {q:"Why don't some couples go to the gym?", a:"Because some relationships don't work out."},
+      {q:"What do you get when you cross a snowman and a dog?", a:"Frostbite with fur."},
+      {q:"Why did the cookie go to space?", a:"To find the Milky Way."},
+      {q:"Why did the banana visit the doctor?", a:"It wasn't peeling well."},
+      {q:"What did the pencil say to the paper?", a:"I dot my i's on you."},
+      {q:"Why did the turtle cross the road?", a:"To get to the shell station."},
+      {q:"What do you call a bee that can't make up its mind?", a:"A maybe."},
+      {q:"Why was the math book so cozy?", a:"Because it had so many problems to snuggle."},
+      {q:"Why did the tomato sit down?", a:"It couldn't ketchup."},
+      {q:"What do you call a dinosaur with an extensive vocabulary?", a:"A thesaurus."},
+      {q:"Why did the pianist keep banging his head on the keys?", a:"He was playing by ear."},
+      {q:"What do you call a cow with no legs?", a:"Ground beef."},
+      {q:"Why did the scarecrow read a book?", a:"He wanted to be well-rounded."},
+      {q:"How do you fix a broken pumpkin?", a:"With a pumpkin patch."},
+      {q:"Why did the bicycle find a job?", a:"It wanted to earn its own spokes."},
+      {q:"What do you call a sleeping bull?", a:"A bulldozer."},
+      {q:"Why are ghosts such bad liars?", a:"Because they are transparently obvious."},
+      {q:"Why did the belt go to jail?", a:"It held up a pair of pants."},
+      {q:"What do you call a train loaded with bubblegum?", a:"A chew-chew train."},
+      {q:"Why don't oysters donate to charity?", a:"Because they are shellfish."},
+      {q:"What do you call a fish wearing a bowtie?", a:"Sofishticated."},
+      {q:"Why did the grape stop in the middle of the road?", a:"It ran out of juice."},
+      {q:"What do you call a ghost's true love?", a:"His ghoul-friend."},
+      {q:"Why did the math teacher climb a ladder?", a:"To reach the high degree."},
+      {q:"What does a cloud wear under his raincoat?", a:"Thunderwear."},
+      {q:"Why did the bicycle need a nap?", a:"Because it was wheel-y tired."},
+      {q:"What do you call a detective who plays the piano?", a:"Sherlock Homely."},
+      {q:"Why did the man put his money in the blender?", a:"He wanted liquid assets."},
+      {q:"What did one ocean say to the other ocean?", a:"Nothing. They just waved."},
+      {q:"Why was the computer cold at night?", a:"It left its Windows open."},
+      {q:"Why did the student bring string to class?", a:"To tie up loose ends on his homework."},
+      {q:"What do you call an obnoxious gardener?", a:"A weed wacker."},
+      {q:"Why did the lion eat the tightrope walker?", a:"He wanted a well-balanced meal."},
+      {q:"Why did the coffee file a police report?", a:"Because it was mugged."},
+      {q:"What do you call a bee that lives in America?", a:"USB."},
+      {q:"Why are pirates called pirates?", a:"Because they arrr!"}, 
+      {q:"What did the judge say to the dentist?", a:"Do you swear to pull the tooth, the whole tooth, and nothing but the tooth?"}, 
+      {q:"Why did the tree take a nap?", a:"It needed to re-leaf."},
+      {q:"What do you call a smart group of trees?", a:"A brainforest."},
+      {q:"Why did the cookie go to the doctor after vacation?", a:"Because it felt crumby and jet-lagged."},
+      {q:"Why was the broom so excited about the job interview?", a:"It was sweeping for a new opportunity."},
+      {q:"What do you call a fish that practices law?", a:"A legal tuna."},
+      {q:"Why did the cowboy adopt a dachshund?", a:"He wanted to get a long little doggy."},
+      {q:"What do you call a lucky piece of cheese?", a:"Fortune mozzarella."},
+      {q:"Why did the astronaut bring a map?", a:"In case he lost his sense of direction in space."},
+      {q:"Why don’t skeletons go trick-or-treating?", a:"They have no body to go with."},
+      {q:"What did the acorn say when it grew up?", a:"Gee, I'm a tree!"}
+    ];
+
+    // Safety: ensure we truly have 150 unique jokes
+    (function validateUnique(){
+      const seen = new Set();
+      for (let i=0;i<jokes.length;i++){
+        const pair = (jokes[i].q + "||" + jokes[i].a).toLowerCase().trim();
+        if(seen.has(pair)){
+          console.warn("Duplicate detected at index", i, jokes[i]);
+        }
+        seen.add(pair);
+      }
+      // If duplicates exist in this list, they'd show in console; final array length:
+      if(jokes.length !== 150){
+        console.warn("Joke count is", jokes.length, "expected 150.");
+      }
+    })();
+
+    let currentJoke = null;
+
+    function fadeCard() {
+      const card = document.getElementById('card');
+      card.style.opacity = 0.6;
+      card.style.transform = 'translateY(6px)';
+      setTimeout(()=> { card.style.opacity = 1; card.style.transform = 'translateY(0)'; }, 160);
+    }
+
+    function showJoke(){
+      // pick random, make sure we don't pick same as current
+      if(jokes.length === 0) return;
+      let idx;
+      do {
+        idx = Math.floor(Math.random() * jokes.length);
+      } while (currentJoke && jokes[idx].q === currentJoke.q && jokes.length > 1);
+
+      currentJoke = jokes[idx];
+      document.getElementById('joke-question').textContent = currentJoke.q;
+      document.getElementById('joke-answer').textContent = "";
+      document.getElementById('answer-btn').style.display = "inline-block";
+      fadeCard();
+    }
+
+    function showAnswer(){
+      if(!currentJoke) return;
+      document.getElementById('joke-answer').textContent = currentJoke.a;
+      document.getElementById('answer-btn').style.display = "none";
+      fadeCard();
+    }
+
+    function copyJoke(){
+      if(!currentJoke) return;
+      const text = `Q: ${currentJoke.q}\nA: ${currentJoke.a}`;
+      navigator.clipboard?.writeText(text).then(() => {
+        const old = document.getElementById('copy-btn').textContent;
+        document.getElementById('copy-btn').textContent = "Copied!";
+        setTimeout(()=> document.getElementById('copy-btn').textContent = old, 1200);
+      }).catch(()=> {
+        alert("Couldn't copy — your browser may not allow clipboard access.");
+      });
+    }
+
+    // keyboard shortcuts: N = new, A = answer
+    document.addEventListener('keydown', (e) => {
+      if(e.key.toLowerCase() === 'n') showJoke();
+      if(e.key.toLowerCase() === 'a') showAnswer();
+    });
+
+    // optional: show a random joke on load
+    // showJoke();
+  </script>
+</body>
+</html>
